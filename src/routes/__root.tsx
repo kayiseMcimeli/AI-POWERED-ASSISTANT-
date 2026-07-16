@@ -87,10 +87,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "AI-powered operations dashboard for school transport and long-distance taxi businesses.",
+          "PhoziFlow AI is an AI-powered dashboard for school transport and long-distance taxi operators — trips, learners, fleet, revenue and parent notifications in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "PhoziFlow AI — AI Transport Management" },
+      { name: "twitter:description", content: "PhoziFlow AI is an AI-powered dashboard for school transport and long-distance taxi operators — trips, learners, fleet, revenue and parent notifications in one place." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8738fa90-aefb-4fac-9c17-8f803bac6012/id-preview-6af3b306--510ecc1a-3848-4fca-bd07-2557164debda.lovable.app-1784188138754.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8738fa90-aefb-4fac-9c17-8f803bac6012/id-preview-6af3b306--510ecc1a-3848-4fca-bd07-2557164debda.lovable.app-1784188138754.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
