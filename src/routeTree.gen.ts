@@ -14,6 +14,7 @@ import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LearnersRouteImport } from './routes/learners'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
 
 const RevenueRoute = RevenueRouteImport.update({
@@ -41,6 +42,11 @@ const BookingsRoute = BookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
   '/bookings': typeof BookingsRoute
   '/fleet': typeof FleetRoute
   '/learners': typeof LearnersRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
   '/bookings': typeof BookingsRoute
   '/fleet': typeof FleetRoute
   '/learners': typeof LearnersRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
   '/bookings': typeof BookingsRoute
   '/fleet': typeof FleetRoute
   '/learners': typeof LearnersRoute
@@ -76,16 +85,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/assistant'
     | '/bookings'
     | '/fleet'
     | '/learners'
     | '/notifications'
     | '/revenue'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bookings' | '/fleet' | '/learners' | '/notifications' | '/revenue'
+  to:
+    | '/'
+    | '/assistant'
+    | '/bookings'
+    | '/fleet'
+    | '/learners'
+    | '/notifications'
+    | '/revenue'
   id:
     | '__root__'
     | '/'
+    | '/assistant'
     | '/bookings'
     | '/fleet'
     | '/learners'
@@ -95,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssistantRoute: typeof AssistantRoute
   BookingsRoute: typeof BookingsRoute
   FleetRoute: typeof FleetRoute
   LearnersRoute: typeof LearnersRoute
@@ -139,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -151,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssistantRoute: AssistantRoute,
   BookingsRoute: BookingsRoute,
   FleetRoute: FleetRoute,
   LearnersRoute: LearnersRoute,
