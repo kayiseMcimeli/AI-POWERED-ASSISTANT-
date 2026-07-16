@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RevenueRouteImport } from './routes/revenue'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LearnersRouteImport } from './routes/learners'
@@ -17,6 +18,11 @@ import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevenueRoute = RevenueRouteImport.update({
   id: '/revenue',
   path: '/revenue',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/learners': typeof LearnersRoute
   '/notifications': typeof NotificationsRoute
   '/revenue': typeof RevenueRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/learners': typeof LearnersRoute
   '/notifications': typeof NotificationsRoute
   '/revenue': typeof RevenueRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/learners': typeof LearnersRoute
   '/notifications': typeof NotificationsRoute
   '/revenue': typeof RevenueRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/learners'
     | '/notifications'
     | '/revenue'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/learners'
     | '/notifications'
     | '/revenue'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/learners'
     | '/notifications'
     | '/revenue'
+    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,10 +131,18 @@ export interface RootRouteChildren {
   LearnersRoute: typeof LearnersRoute
   NotificationsRoute: typeof NotificationsRoute
   RevenueRoute: typeof RevenueRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/revenue': {
       id: '/revenue'
       path: '/revenue'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearnersRoute: LearnersRoute,
   NotificationsRoute: NotificationsRoute,
   RevenueRoute: RevenueRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
