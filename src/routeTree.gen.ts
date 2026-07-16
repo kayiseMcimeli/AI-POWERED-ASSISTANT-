@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RevenueRouteImport } from './routes/revenue'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LearnersRouteImport } from './routes/learners'
 import { Route as FleetRouteImport } from './routes/fleet'
 import { Route as BookingsRouteImport } from './routes/bookings'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const RevenueRoute = RevenueRouteImport.update({
   id: '/revenue',
   path: '/revenue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnersRoute = LearnersRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/bookings': typeof BookingsRoute
   '/fleet': typeof FleetRoute
   '/learners': typeof LearnersRoute
+  '/notifications': typeof NotificationsRoute
   '/revenue': typeof RevenueRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/bookings': typeof BookingsRoute
   '/fleet': typeof FleetRoute
   '/learners': typeof LearnersRoute
+  '/notifications': typeof NotificationsRoute
   '/revenue': typeof RevenueRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,28 @@ export interface FileRoutesById {
   '/bookings': typeof BookingsRoute
   '/fleet': typeof FleetRoute
   '/learners': typeof LearnersRoute
+  '/notifications': typeof NotificationsRoute
   '/revenue': typeof RevenueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bookings' | '/fleet' | '/learners' | '/revenue'
+  fullPaths:
+    | '/'
+    | '/bookings'
+    | '/fleet'
+    | '/learners'
+    | '/notifications'
+    | '/revenue'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bookings' | '/fleet' | '/learners' | '/revenue'
-  id: '__root__' | '/' | '/bookings' | '/fleet' | '/learners' | '/revenue'
+  to: '/' | '/bookings' | '/fleet' | '/learners' | '/notifications' | '/revenue'
+  id:
+    | '__root__'
+    | '/'
+    | '/bookings'
+    | '/fleet'
+    | '/learners'
+    | '/notifications'
+    | '/revenue'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +98,7 @@ export interface RootRouteChildren {
   BookingsRoute: typeof BookingsRoute
   FleetRoute: typeof FleetRoute
   LearnersRoute: typeof LearnersRoute
+  NotificationsRoute: typeof NotificationsRoute
   RevenueRoute: typeof RevenueRoute
 }
 
@@ -86,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/revenue'
       fullPath: '/revenue'
       preLoaderRoute: typeof RevenueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learners': {
@@ -124,6 +154,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingsRoute: BookingsRoute,
   FleetRoute: FleetRoute,
   LearnersRoute: LearnersRoute,
+  NotificationsRoute: NotificationsRoute,
   RevenueRoute: RevenueRoute,
 }
 export const routeTree = rootRouteImport
