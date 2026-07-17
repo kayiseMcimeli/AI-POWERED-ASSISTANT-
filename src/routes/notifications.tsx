@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Send, Sparkles, MessageSquareHeart } from "lucide-react";
+import { Send, Sparkles, MessageSquareHeart, Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { FloatingCard, Pill, SectionTitle } from "@/components/ui-kit";
+import { generateAssistantResponse } from "@/lib/ai-generate.functions";
 
 export const Route = createFileRoute("/notifications")({
   component: NotificationsPage,
@@ -19,7 +22,53 @@ const sent = [
   { to: "Route 2A group", when: "2 days ago", preview: "New pickup point starting Monday…", status: "Delivered" },
 ];
 
+const DEFAULT_SITUATION = "Route 4B is running 15 minutes late due to traffic";
+
+const FALLBACK_DRAFT = (situation: string) =>
+  `Good morning parents 👋\n\nWe want to let you know: ${situation}. Our team is on it and learners remain safe. We will share another update as soon as anything changes.\n\nThank you for your patience and understanding.\n\n— PhoziFlow Transport`;
+
 function NotificationsPage() {
+  const [situation, setSituation] = useState(DEFAULT_SITUATION);
+  const [draft, setDraft] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const generate = useServerFn(generateAssistantResponse);
+
+  const handleGenerate = async () => {
+    if (!situation.trim() || isLoading) return;
+    setIsLoading(true);
+    setError(null);
+    setCopied(false);
+    try {
+      const result = await generate({
+        data: { feature: "notify", prompt: situation.trim() },
+      });
+      setDraft(result.text);
+    } catch (err) {
+      setDraft(FALLBACK_DRAFT(situation.trim()));
+      setError(
+        err instanceof Error
+          ? `${err.message} Showing a template draft instead.`
+          : "AI generation failed. Showing a template draft instead.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!draft) return;
+    try {
+      await navigator.clipboard.writeText(draft);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setError("Could not copy to clipboard.");
+    }
+  };
+
   return (
     <AppShell>
       <PageHeader
@@ -39,32 +88,50 @@ function NotificationsPage() {
             Situation
           </label>
           <input
-            defaultValue="Route 4B is running 15 minutes late due to traffic"
+            value={situation}
+            onChange={(e) => setSituation(e.target.value)}
             className="mb-4 w-full rounded-xl border border-border bg-white p-3 text-sm outline-none focus:border-[color:var(--purple)]"
           />
 
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             AI Draft
           </label>
-          <div className="rounded-2xl bg-[color:var(--peach-soft)] p-4 text-sm leading-relaxed">
-            <p>Good morning parents 👋</p>
-            <p className="mt-2">
-              Route 4B is currently running about 15 minutes late due to heavy
-              traffic on the N2. Our driver is safe and on the way — learners will
-              be dropped off shortly. Thank you for your patience and understanding.
-            </p>
-            <p className="mt-2 text-muted-foreground">— PhoziFlow Transport</p>
+          <div className="whitespace-pre-wrap rounded-2xl bg-[color:var(--peach-soft)] p-4 text-sm leading-relaxed min-h-[8rem]">
+            {isLoading
+              ? "Generating draft…"
+              : draft
+                ? draft
+                : "Click Generate to draft a parent notification. Always review AI output before sending."}
           </div>
 
+          {error && (
+            <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="mt-4 flex flex-wrap gap-2">
-            <button className="bg-brand-gradient inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md">
-              <Send className="h-4 w-4" /> Send to Route 4B parents
+            <button
+              onClick={handleGenerate}
+              disabled={isLoading || !situation.trim()}
+              className="bg-brand-gradient inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md disabled:opacity-60"
+            >
+              <Sparkles className="h-4 w-4" />
+              {isLoading ? "Generating…" : draft ? "Regenerate" : "Generate"}
             </button>
-            <button className="rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold">
-              Regenerate
+            <button
+              onClick={handleCopy}
+              disabled={!draft || isLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? "Copied" : "Copy"}
             </button>
-            <button className="rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold">
-              Edit
+            <button
+              disabled={!draft || isLoading}
+              className="bg-brand-gradient inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md disabled:opacity-60"
+            >
+              <Send className="h-4 w-4" /> Send to parents
             </button>
           </div>
         </FloatingCard>
@@ -73,10 +140,19 @@ function NotificationsPage() {
           <SectionTitle title="Templates" />
           <div className="space-y-3">
             {templates.map((t) => (
-              <div key={t.title} className="rounded-2xl bg-[color:var(--peach-soft)] p-3">
+              <button
+                key={t.title}
+                onClick={() => {
+                  setSituation(t.title);
+                  setDraft(t.body);
+                  setError(null);
+                  setCopied(false);
+                }}
+                className="w-full rounded-2xl bg-[color:var(--peach-soft)] p-3 text-left hover:bg-white transition"
+              >
                 <div className="text-sm font-semibold">{t.title}</div>
                 <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{t.body}</p>
-              </div>
+              </button>
             ))}
           </div>
         </FloatingCard>
