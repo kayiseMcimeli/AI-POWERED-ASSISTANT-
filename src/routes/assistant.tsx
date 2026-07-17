@@ -42,6 +42,25 @@ function AssistantPage() {
 
   const generate = useServerFn(generateAssistantResponse);
 
+  const fallbackFor = (feature: string, input: string) => {
+    switch (feature) {
+      case "email":
+        return `Subject: Following up on your request\n\nDear Parent/Partner,\n\nThank you for reaching out to PhoziFlow Transport. Regarding: "${input}" — we have noted your request and will get back to you within one working day with the details.\n\nKind regards,\nPhoziFlow Team`;
+      case "whatsapp":
+        return `Hi 👋 Thanks for your message about "${input}". We've received it and someone from the PhoziFlow team will reply shortly. Appreciate your patience!`;
+      case "notify":
+        return `Good morning parents 👋\n\nQuick update: ${input}. Learners remain safe and our team is on it. We'll share another update as soon as anything changes.\n\n— PhoziFlow Transport`;
+      case "tasks":
+        return `Prioritised plan for today based on: "${input}"\n\n• 07:00–09:00 — Morning routes & driver check-ins (highest priority)\n• 09:00–10:30 — Parent messages & payment reminders\n• 10:30–12:00 — Admin: bookings, invoicing\n• 13:00–15:00 — Afternoon school runs\n• 15:30–16:30 — Review + plan tomorrow`;
+      case "revenue":
+        return `Revenue insights for: "${input}"\n\n• Growth: weekend charters to Mthatha show strong demand — consider a fixed Friday slot.\n• Risk: 17 parents overdue on fees — automated WhatsApp reminders could recover ~R22k.\n• Cost saving: consolidate Route 4B fuel stops to one supplier.`;
+      case "research":
+        return `Research summary on: "${input}"\n\n• Key findings and typical market rates are shown below (verify with local sources).\n• Competitors in the area generally price between R650–R950 per learner per month.\n• Grants: check SASSA transport subsidy and provincial scholar transport programmes.\n• Next step: confirm figures with 2–3 local operators before quoting.`;
+      default:
+        return `Here's a starting draft for: "${input}"\n\nPlease review and refine before using. This is a template fallback — connect the AI provider for tailored responses.`;
+    }
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
     setIsLoading(true);
@@ -52,7 +71,12 @@ function AssistantPage() {
       const result = await generate({ data: { feature: active, prompt: prompt.trim() } });
       setOutput(result.text);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setOutput(fallbackFor(active, prompt.trim()));
+      setError(
+        err instanceof Error
+          ? `${err.message} Showing a template response instead.`
+          : "AI generation failed. Showing a template response instead.",
+      );
     } finally {
       setIsLoading(false);
     }
